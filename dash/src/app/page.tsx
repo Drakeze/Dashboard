@@ -1,103 +1,126 @@
-import Image from "next/image";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { ArrowUpIcon, ArrowDownIcon, Users, Heart, MessageCircle, Share2 } from "lucide-react"
 
-export default function Home() {
+export default function DashboardPage() {
+  const stats = [
+    {
+      title: "Total Followers",
+      value: "24,583",
+      change: "+12.5%",
+      trend: "up",
+      icon: Users,
+    },
+    {
+      title: "Engagement Rate",
+      value: "8.2%",
+      change: "+2.1%",
+      trend: "up",
+      icon: Heart,
+    },
+    {
+      title: "Total Posts",
+      value: "342",
+      change: "-3.2%",
+      trend: "down",
+      icon: MessageCircle,
+    },
+    {
+      title: "Shares",
+      value: "1,429",
+      change: "+18.7%",
+      trend: "up",
+      icon: Share2,
+    },
+  ]
+
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    <div className="min-h-screen bg-black text-white p-6">
+      <div className="max-w-7xl mx-auto space-y-8">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-white">Analytics Dashboard</h1>
+            <p className="text-gray-400 mt-1">Track your social media performance</p>
+          </div>
+          <div className="flex gap-3">
+            <Button variant="outline" className="bg-transparent border-gray-700 text-white hover:bg-gray-900">
+              Export
+            </Button>
+            <Button className="bg-white text-black hover:bg-gray-200">Refresh Data</Button>
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {stats.map((stat) => {
+            const Icon = stat.icon
+            return (
+              <Card key={stat.title} className="bg-gray-900 border-gray-800">
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <CardTitle className="text-sm font-medium text-gray-400">{stat.title}</CardTitle>
+                  <Icon className="h-4 w-4 text-gray-500" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-white">{stat.value}</div>
+                  <div className="flex items-center gap-1 mt-1">
+                    {stat.trend === "up" ? (
+                      <ArrowUpIcon className="h-4 w-4 text-white" />
+                    ) : (
+                      <ArrowDownIcon className="h-4 w-4 text-gray-400" />
+                    )}
+                    <span className={`text-sm ${stat.trend === "up" ? "text-white" : "text-gray-400"}`}>
+                      {stat.change}
+                    </span>
+                    <span className="text-sm text-gray-500">vs last month</span>
+                  </div>
+                </CardContent>
+              </Card>
+            )
+          })}
+        </div>
+
+        {/* Recent Activity */}
+        <Card className="bg-gray-900 border-gray-800">
+          <CardHeader>
+            <CardTitle className="text-white">Recent Activity</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {[
+                { action: "New follower", user: "@johndoe", time: "2 minutes ago" },
+                { action: "Post liked", user: "@janedoe", time: "15 minutes ago" },
+                { action: "Comment received", user: "@alexsmith", time: "1 hour ago" },
+                { action: "Post shared", user: "@sarahj", time: "3 hours ago" },
+              ].map((activity, index) => (
+                <div
+                  key={index}
+                  className="flex items-center justify-between py-3 border-b border-gray-800 last:border-0"
+                >
+                  <div>
+                    <p className="text-white font-medium">{activity.action}</p>
+                    <p className="text-gray-400 text-sm">{activity.user}</p>
+                  </div>
+                  <span className="text-gray-500 text-sm">{activity.time}</span>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Quick Actions */}
+        <div className="flex gap-3">
+          <Button variant="outline" className="bg-transparent border-gray-700 text-white hover:bg-gray-900">
+            View Reports
+          </Button>
+          <Button variant="outline" className="bg-transparent border-gray-700 text-white hover:bg-gray-900">
+            Schedule Post
+          </Button>
+          <Button variant="outline" className="bg-transparent border-gray-700 text-white hover:bg-gray-900">
+            Settings
+          </Button>
+        </div>
+      </div>
     </div>
-  );
+  )
 }
