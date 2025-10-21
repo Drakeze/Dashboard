@@ -1,8 +1,20 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# My Dashboard
+
+This project is a [Next.js](https://nextjs.org) dashboard bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+
+## Installing dependencies
+
+If you are working in an environment that pre-configures HTTP proxy variables, the default `npm install` command can receive `403 Forbidden` responses from the registry. You can bypass those proxy settings by unsetting them for the installation command:
+
+```bash
+env -u https_proxy -u http_proxy -u HTTPS_PROXY -u HTTP_PROXY -u npm_config_https_proxy -u npm_config_http_proxy npm install
+```
+
+When no proxy is present (such as on Vercel), a plain `npm install` works without additional flags.
 
 ## Getting Started
 
-First, run the development server:
+After installing the dependencies, run the development server:
 
 ```bash
 npm run dev
