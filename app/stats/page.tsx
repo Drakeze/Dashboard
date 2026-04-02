@@ -15,7 +15,6 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  Legend,
   ResponsiveContainer,
   ScatterChart,
   Scatter,
@@ -49,23 +48,13 @@ const raceDistribution = CHARACTERS.reduce(
   [] as { name: string; value: number }[]
 );
 
-const levelDistribution = CHARACTERS.sort((a, b) => a.level - b.level).map(
+const levelDistribution = [...CHARACTERS].sort((a, b) => a.level - b.level).map(
   (char) => ({
     name: char.name,
     level: char.level,
     experience: char.experience,
   })
 );
-
-const statComparison = CHARACTERS.map((char) => ({
-  name: char.name.substring(0, 8),
-  strength: char.stats.strength,
-  dexterity: char.stats.dexterity,
-  constitution: char.stats.constitution,
-  intelligence: char.stats.intelligence,
-  wisdom: char.stats.wisdom,
-  charisma: char.stats.charisma,
-}));
 
 const experienceVsLevel = CHARACTERS.map((char) => ({
   name: char.name.substring(0, 8),
@@ -397,7 +386,8 @@ export default function StatsPage() {
             {/* Highest Level */}
             <div className="space-y-4">
               <h3 className="font-semibold text-foreground">Highest Level</h3>
-              {CHARACTERS.sort((a, b) => b.level - a.level)
+              {[...CHARACTERS]
+                .sort((a, b) => b.level - a.level)
                 .slice(0, 3)
                 .map((char, idx) => (
                   <div
@@ -422,7 +412,8 @@ export default function StatsPage() {
             {/* Most Experience */}
             <div className="space-y-4">
               <h3 className="font-semibold text-foreground">Most Experience</h3>
-              {CHARACTERS.sort((a, b) => b.experience - a.experience)
+              {[...CHARACTERS]
+                .sort((a, b) => b.experience - a.experience)
                 .slice(0, 3)
                 .map((char, idx) => (
                   <div

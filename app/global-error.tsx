@@ -5,6 +5,7 @@ export default function GlobalError({
 }: {
   error: Error & { digest?: string }
 }) {
+  const isDevelopment = process.env.NODE_ENV === 'development'
   const pathname = typeof window !== 'undefined' ? window.location.pathname : ''
 
   // Log the error to the console so it will be forwarded to server logs and captured by auto-fix
@@ -127,7 +128,7 @@ export default function GlobalError({
           <div className="error-summary">
             {error.message || 'Unknown error'}
           </div>
-          {error.stack && (
+          {isDevelopment && error.stack && (
             <div className="error-details-wrapper">
               <details className="error-details">
                 <summary>
