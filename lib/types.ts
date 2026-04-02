@@ -9,7 +9,15 @@ export interface CharacterStat {
 
 export interface CharacterRelationship {
   characterId: string;
-  type: 'mentor' | 'student' | 'ally' | 'rival' | 'enemy' | 'friend';
+  type:
+    | 'mentor'
+    | 'student'
+    | 'ally'
+    | 'rival'
+    | 'enemy'
+    | 'friend'
+    | 'brother'
+    | 'teammate';
   description: string;
 }
 

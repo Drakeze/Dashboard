@@ -5,7 +5,13 @@ import { CHARACTERS, getMaxLevel, getUniqueClasses, getUniqueRaces, filterCharac
 import { FilterState } from '@/lib/types';
 import { CharacterCard } from '@/components/character-card';
 import { Input } from '@/components/ui/input';
-import { Select } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Slider } from '@/components/ui/slider';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -91,17 +97,25 @@ export default function Home() {
             <div className="space-y-2">
               <FieldLabel htmlFor="class">Class</FieldLabel>
               <Select
-                value={filters.classFilter}
+                value={filters.classFilter || 'all'}
                 onValueChange={(value) =>
-                  setFilters({ ...filters, classFilter: value })
+                  setFilters({
+                    ...filters,
+                    classFilter: value === 'all' ? '' : value,
+                  })
                 }
               >
-                <option value="">All Classes</option>
-                {classes.map((cls) => (
-                  <option key={cls} value={cls}>
-                    {cls}
-                  </option>
-                ))}
+                <SelectTrigger className="w-full bg-input/80 border-border/50">
+                  <SelectValue placeholder="All Classes" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Classes</SelectItem>
+                  {classes.map((cls) => (
+                    <SelectItem key={cls} value={cls}>
+                      {cls}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
               </Select>
             </div>
 
@@ -109,17 +123,25 @@ export default function Home() {
             <div className="space-y-2">
               <FieldLabel htmlFor="race">Race</FieldLabel>
               <Select
-                value={filters.raceFilter}
+                value={filters.raceFilter || 'all'}
                 onValueChange={(value) =>
-                  setFilters({ ...filters, raceFilter: value })
+                  setFilters({
+                    ...filters,
+                    raceFilter: value === 'all' ? '' : value,
+                  })
                 }
               >
-                <option value="">All Races</option>
-                {races.map((race) => (
-                  <option key={race} value={race}>
-                    {race}
-                  </option>
-                ))}
+                <SelectTrigger className="w-full bg-input/80 border-border/50">
+                  <SelectValue placeholder="All Races" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Races</SelectItem>
+                  {races.map((race) => (
+                    <SelectItem key={race} value={race}>
+                      {race}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
               </Select>
             </div>
 
