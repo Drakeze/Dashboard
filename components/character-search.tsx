@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useCallback } from 'react';
-import { CHARACTERS } from '@/lib/character-data';
+import { useState } from 'react';
 import { Character } from '@/lib/types';
+import { CATEGORY_LABELS } from '@/lib/theme';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -11,20 +11,23 @@ import { Search, Zap } from 'lucide-react';
 import Link from 'next/link';
 
 interface CharacterSearchProps {
+  characters: Character[];
   className?: string;
 }
 
-export function CharacterSearch({ className }: CharacterSearchProps) {
+export function CharacterSearch({ characters, className }: CharacterSearchProps) {
   const [open, setOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
 
   const filteredCharacters: Character[] = searchTerm
-    ? CHARACTERS.filter(
-        (char) =>
-          char.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          char.class.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          char.race.toLowerCase().includes(searchTerm.toLowerCase())
-      ).slice(0, 5)
+    ? characters
+        .filter(
+          (char) =>
+            char.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            CATEGORY_LABELS[char.category].toLowerCase().includes(searchTerm.toLowerCase()) ||
+            char.race.toLowerCase().includes(searchTerm.toLowerCase())
+        )
+        .slice(0, 5)
     : [];
 
   return (
@@ -64,7 +67,7 @@ export function CharacterSearch({ className }: CharacterSearchProps) {
                             {character.name}
                           </p>
                           <p className="text-xs text-muted-foreground">
-                            {character.race} • {character.class}
+                            {character.race} • {CATEGORY_LABELS[character.category]}
                           </p>
                         </div>
                         <Badge className="bg-primary text-primary-foreground text-xs">

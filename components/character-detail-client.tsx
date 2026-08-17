@@ -1,10 +1,10 @@
 'use client';
 
-import { getCharacterById } from '@/lib/character-data';
 import type { Character } from '@/lib/types';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Empty,
@@ -14,15 +14,34 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from '@/components/ui/empty';
-import { ArrowLeft, Sword, Shield, Zap, Heart, Eye, Wand2 } from 'lucide-react';
+import { getCategoryAccent, CATEGORY_LABELS, CHART_TOOLTIP_STYLE } from '@/lib/theme';
+import { ArrowLeft, Users, Sword, Shield, Zap, Heart, Eye, Wand2 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
+import {
+  RadarChart,
+  PolarGrid,
+  PolarAngleAxis,
+  Radar,
+  ResponsiveContainer,
+  Tooltip,
+} from 'recharts';
+
+interface RelatedCharacter {
+  character: Character;
+  type: string;
+  description: string;
+}
 
 interface CharacterDetailClientProps {
   character: Character | null;
+  relatedCharacters?: RelatedCharacter[];
 }
 
-export function CharacterDetailClient({ character }: CharacterDetailClientProps) {
+export function CharacterDetailClient({
+  character,
+  relatedCharacters = [],
+}: CharacterDetailClientProps) {
   if (!character) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -46,9 +65,7 @@ export function CharacterDetailClient({ character }: CharacterDetailClientProps)
     );
   }
 
-  const relatedCharacters = character.relationships
-    .map((rel) => getCharacterById(rel.characterId))
-    .filter((char): char is Character => char !== undefined);
+  const accent = getCategoryAccent(character.category);
 
   const statIcons: Record<string, React.ReactNode> = {
     strength: <Sword className="w-4 h-4" />,
@@ -68,24 +85,32 @@ export function CharacterDetailClient({ character }: CharacterDetailClientProps)
     charisma: 'Charisma',
   };
 
+  const statSpread = Object.entries(character.stats).map(([key, value]) => ({
+    stat: statLabels[key],
+    value,
+  }));
+
   return (
     <div className="min-h-screen bg-background">
-      <header className="sticky top-0 z-50 border-b border-border/30 bg-background/80 backdrop-blur-md">
-        <div className="container mx-auto px-4 py-4">
-          <Link href="/">
-            <Button variant="ghost" size="sm" className="gap-2 mb-4">
-              <ArrowLeft className="w-4 h-4" />
-              Back to Directory
-            </Button>
-          </Link>
-        </div>
-      </header>
+      <div className="container mx-auto px-4 py-6">
+        <Link href="/">
+          <Button variant="ghost" size="sm" className="gap-2">
+            <ArrowLeft className="w-4 h-4" />
+            Back to Directory
+          </Button>
+        </Link>
+      </div>
 
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 pb-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-6">
             <Card className="overflow-hidden bg-card/80 border-border/30 backdrop-blur-sm">
-              <div className="relative h-64 bg-gradient-to-b from-primary/20 to-transparent">
+              <div
+                className="relative h-64"
+                style={{
+                  background: `linear-gradient(to bottom, ${accent.soft}, transparent)`,
+                }}
+              >
                 {character.imageUrl.startsWith('/') ? (
                   <Image
                     src={character.imageUrl}
@@ -95,20 +120,23 @@ export function CharacterDetailClient({ character }: CharacterDetailClientProps)
                     priority
                   />
                 ) : (
-                  <div className="w-full h-full bg-gradient-to-b from-primary/30 to-secondary/30 flex items-center justify-center">
-                    <Sword className="w-16 h-16 text-primary/50" />
+                  <div className="w-full h-full flex items-center justify-center">
+                    <Users className="w-16 h-16" style={{ color: accent.color }} />
                   </div>
                 )}
               </div>
 
               <div className="p-8">
-                <div className="flex items-start justify-between mb-4">
+                <div className="flex items-start justify-between mb-6">
                   <div>
-                    <h1 className="text-4xl font-bold text-foreground mb-2">
+                    <h1 className="text-4xl font-bold text-foreground mb-2 tracking-tight">
                       {character.name}
                     </h1>
                     <p className="text-lg text-muted-foreground">
-                      {character.race} {character.class}
+                      {character.race}{' '}
+                      <span style={{ color: accent.color }}>
+                        {CATEGORY_LABELS[character.category]}
+                      </span>
                     </p>
                   </div>
                   <div className="flex flex-col gap-2 items-end">
@@ -119,53 +147,77 @@ export function CharacterDetailClient({ character }: CharacterDetailClientProps)
                   </div>
                 </div>
 
-                <div className="grid grid-cols-3 gap-4">
-                  <Card className="bg-muted/30 border-border/50 p-4 text-center">
-                    <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
-                      Experience
-                    </p>
-                    <p className="text-xl font-bold text-foreground">
-                      {character.experience.toLocaleString()}
-                    </p>
-                  </Card>
-                  <Card className="bg-muted/30 border-border/50 p-4 text-center">
-                    <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
-                      Skills
-                    </p>
-                    <p className="text-xl font-bold text-foreground">
-                      {character.skills.length}
-                    </p>
-                  </Card>
-                  <Card className="bg-muted/30 border-border/50 p-4 text-center">
-                    <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
-                      Achievements
-                    </p>
-                    <p className="text-xl font-bold text-foreground">
-                      {character.achievements.length}
-                    </p>
+                <div className="grid grid-cols-1 sm:grid-cols-[2fr_1fr] gap-4">
+                  <div className="grid grid-cols-3 gap-4">
+                    <Card className="bg-muted/30 border-border/50 p-4 text-center">
+                      <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
+                        Experience
+                      </p>
+                      <p className="text-2xl font-semibold tabular-nums tracking-tight text-foreground">
+                        {character.experience.toLocaleString()}
+                      </p>
+                    </Card>
+                    <Card className="bg-muted/30 border-border/50 p-4 text-center">
+                      <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
+                        Skills
+                      </p>
+                      <p className="text-2xl font-semibold tabular-nums tracking-tight text-foreground">
+                        {character.skills.length}
+                      </p>
+                    </Card>
+                    <Card className="bg-muted/30 border-border/50 p-4 text-center">
+                      <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
+                        Achievements
+                      </p>
+                      <p className="text-2xl font-semibold tabular-nums tracking-tight text-foreground">
+                        {character.achievements.length}
+                      </p>
+                    </Card>
+                  </div>
+
+                  <Card className="bg-muted/30 border-border/50 p-2">
+                    <ResponsiveContainer width="100%" height={140}>
+                      <RadarChart data={statSpread} outerRadius="75%">
+                        <PolarGrid stroke="var(--border)" opacity={0.4} />
+                        <PolarAngleAxis
+                          dataKey="stat"
+                          tick={{ fontSize: 9, fill: 'var(--muted-foreground)' }}
+                        />
+                        <Radar
+                          dataKey="value"
+                          stroke={accent.color}
+                          fill={accent.color}
+                          fillOpacity={0.35}
+                        />
+                        <Tooltip contentStyle={CHART_TOOLTIP_STYLE} />
+                      </RadarChart>
+                    </ResponsiveContainer>
                   </Card>
                 </div>
               </div>
             </Card>
 
-            <Card className="bg-card/80 border-border/30 backdrop-blur-sm">
+            <Card
+              className="bg-card/80 border-border/30 backdrop-blur-sm"
+              style={{ '--tab-accent': accent.color } as React.CSSProperties}
+            >
               <Tabs defaultValue="stats" className="w-full">
                 <TabsList className="w-full justify-start rounded-none border-b border-border/30 bg-transparent p-0">
                   <TabsTrigger
                     value="stats"
-                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary"
+                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-[var(--tab-accent)] data-[state=active]:shadow-none"
                   >
                     Stats
                   </TabsTrigger>
                   <TabsTrigger
                     value="skills"
-                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary"
+                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-[var(--tab-accent)] data-[state=active]:shadow-none"
                   >
                     Skills & Equipment
                   </TabsTrigger>
                   <TabsTrigger
                     value="backstory"
-                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary"
+                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-[var(--tab-accent)] data-[state=active]:shadow-none"
                   >
                     Backstory
                   </TabsTrigger>
@@ -182,16 +234,18 @@ export function CharacterDetailClient({ character }: CharacterDetailClientProps)
                               {statLabels[key]}
                             </span>
                           </div>
-                          <span className="text-lg font-bold text-primary">{value}</span>
+                          <span
+                            className="text-lg font-bold tabular-nums"
+                            style={{ color: accent.color }}
+                          >
+                            {value}
+                          </span>
                         </div>
-                        <div className="w-full bg-muted/30 rounded-full h-2">
-                          <div
-                            className="bg-gradient-to-r from-primary to-accent h-2 rounded-full transition-all"
-                            style={{
-                              width: `${(value / 20) * 100}%`,
-                            }}
-                          />
-                        </div>
+                        <Progress
+                          value={(value / 20) * 100}
+                          className="h-2 bg-muted/30"
+                          indicatorColor={accent.color}
+                        />
                       </div>
                     ))}
                   </div>
@@ -215,7 +269,10 @@ export function CharacterDetailClient({ character }: CharacterDetailClientProps)
                       {character.equipment.map((item) => (
                         <Card
                           key={item}
-                          className="bg-gradient-to-br from-primary/20 to-accent/20 border-border/50 p-3"
+                          className="border-border/50 p-3"
+                          style={{
+                            background: `linear-gradient(to bottom right, ${accent.soft}, transparent)`,
+                          }}
                         >
                           <p className="text-sm font-medium text-foreground">{item}</p>
                         </Card>
@@ -248,9 +305,15 @@ export function CharacterDetailClient({ character }: CharacterDetailClientProps)
                 {character.achievements.map((achievement) => (
                   <div
                     key={achievement}
-                    className="flex items-start gap-3 p-3 bg-gradient-to-r from-primary/20 to-accent/20 rounded-lg border border-border/30"
+                    className="flex items-start gap-3 p-3 rounded-lg border border-border/30"
+                    style={{
+                      background: `linear-gradient(to right, ${accent.soft}, transparent)`,
+                    }}
                   >
-                    <div className="w-2 h-2 rounded-full bg-primary mt-2 flex-shrink-0" />
+                    <div
+                      className="w-2 h-2 rounded-full mt-2 flex-shrink-0"
+                      style={{ backgroundColor: accent.color }}
+                    />
                     <p className="text-sm font-medium text-foreground">{achievement}</p>
                   </div>
                 ))}
@@ -261,26 +324,21 @@ export function CharacterDetailClient({ character }: CharacterDetailClientProps)
               <Card className="bg-card/80 border-border/30 backdrop-blur-sm p-6">
                 <h3 className="text-lg font-bold text-foreground mb-4">Relationships</h3>
                 <div className="space-y-4">
-                  {character.relationships.map((rel) => {
-                    const relatedChar = getCharacterById(rel.characterId);
-                    if (!relatedChar) return null;
-
-                    return (
-                      <div key={rel.characterId} className="space-y-2">
-                        <Link href={`/character/${rel.characterId}`}>
-                          <p className="text-sm font-semibold text-primary hover:underline">
-                            {relatedChar.name}
-                          </p>
-                        </Link>
-                        <p className="text-xs text-muted-foreground">
-                          <Badge variant="outline" className="text-xs mb-1">
-                            {rel.type}
-                          </Badge>{' '}
-                          {rel.description}
+                  {relatedCharacters.map(({ character: relatedChar, type, description }) => (
+                    <div key={relatedChar.id} className="space-y-2">
+                      <Link href={`/character/${relatedChar.id}`}>
+                        <p className="text-sm font-semibold text-primary hover:underline">
+                          {relatedChar.name}
                         </p>
-                      </div>
-                    );
-                  })}
+                      </Link>
+                      <p className="text-xs text-muted-foreground">
+                        <Badge variant="outline" className="text-xs mb-1">
+                          {type}
+                        </Badge>{' '}
+                        {description}
+                      </p>
+                    </div>
+                  ))}
                 </div>
               </Card>
             )}

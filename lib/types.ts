@@ -1,3 +1,7 @@
+import type { CharacterCategory } from '@prisma/client';
+
+export type { CharacterCategory };
+
 export interface CharacterStat {
   strength: number;
   dexterity: number;
@@ -24,7 +28,7 @@ export interface CharacterRelationship {
 export interface Character {
   id: string;
   name: string;
-  class: string;
+  category: CharacterCategory;
   race: string;
   level: number;
   experience: number;
@@ -41,7 +45,7 @@ export interface Character {
 
 export interface FilterState {
   searchTerm: string;
-  classFilter: string;
+  categoryFilter: string;
   raceFilter: string;
   levelRange: [number, number];
 }

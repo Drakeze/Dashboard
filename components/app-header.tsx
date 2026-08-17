@@ -2,11 +2,16 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Sword, Home, BarChart3 } from 'lucide-react';
+import { LayoutGrid, Home, BarChart3, PlusCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { CharacterSearch } from '@/components/character-search';
+import type { Character } from '@/lib/types';
 
-export function AppHeader() {
+interface AppHeaderProps {
+  characters: Character[];
+}
+
+export function AppHeader({ characters }: AppHeaderProps) {
   const pathname = usePathname();
 
   // Don't show header on detail pages
@@ -27,6 +32,12 @@ export function AppHeader() {
       icon: BarChart3,
       isActive: pathname === '/stats',
     },
+    {
+      href: '/submit',
+      label: 'Submit',
+      icon: PlusCircle,
+      isActive: pathname === '/submit',
+    },
   ];
 
   return (
@@ -36,15 +47,15 @@ export function AppHeader() {
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 shrink-0">
             <div className="p-2 bg-primary/20 rounded-lg">
-              <Sword className="w-5 h-5 text-primary" />
+              <LayoutGrid className="w-5 h-5 text-primary" />
             </div>
-            <span className="text-xl font-bold text-foreground hidden sm:inline">
+            <span className="text-xl font-bold text-foreground hidden sm:inline tracking-tight">
               Compendium
             </span>
           </Link>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center gap-1">
+          {/* Desktop Navigation — segmented-control style active state */}
+          <nav className="hidden md:flex items-center gap-1 p-1 rounded-full bg-muted/30">
             {navItems.map((item) => {
               const Icon = item.icon;
               return (
@@ -52,10 +63,10 @@ export function AppHeader() {
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    'flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors',
+                    'flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-colors',
                     item.isActive
-                      ? 'bg-primary/20 text-primary'
-                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/30'
+                      ? 'bg-primary text-primary-foreground shadow-sm'
+                      : 'text-muted-foreground hover:text-foreground'
                   )}
                 >
                   <Icon className="w-4 h-4" />
@@ -67,7 +78,7 @@ export function AppHeader() {
 
           {/* Search */}
           <div className="flex-1 max-w-sm">
-            <CharacterSearch />
+            <CharacterSearch characters={characters} />
           </div>
         </div>
       </div>
